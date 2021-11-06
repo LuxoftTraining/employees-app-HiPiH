@@ -6,7 +6,7 @@ function findByName(name, surname) {
 function addEmployee(name, surname) {
     validStringErr(name, "Name:String should be not empty");
     validStringErr(surname, "Surname:String should be not empty");
-    const nextID = DATA.employees.sort((a, b) => b.id - a.id)[0].id + 1;
+    const nextID = DATA.employees.length === 0?0:DATA.employees.sort((a, b) => b.id - a.id)[0].id + 1;
     DATA.employees.push({id: nextID, name: name, surname: surname, department: ""});
     return nextID;
 }
@@ -20,7 +20,7 @@ function removeEmployee(id) {
     validNumberErr(id, "Id:Number should be not empty", t => t < 0);
     const index = DATA.employees.findIndex(s => s.id === id);
     if (index >= 0)
-        DATA.employees.splice(index, index + 1);
+        DATA.employees.splice(index, 1);
 }
 
 function showEmployee(empl) {
