@@ -1,29 +1,32 @@
 let GLOBAL_UI = {
-    PLACEHOLDER: "placeholder"
+    PLACEHOLDER: "placeholder-table",
+    PLACEHOLDERADD: "placeholder-add"
+
 }
-let FORM_FIELDS = [{
-    id: "name", label: "Имя", help: "", type: "text", validate: [
-        str => validString(str) ? "Имя сотрудника должно быть задано" : null
-    ], value: "Имя"
-},
+let FORM_FIELDS = [
+    {
+        id: "name", label: "Имя", help: "", type: "text", validate: [
+            str => validString(str) ? "Имя сотрудника должно быть задано" : null
+        ], value: ""
+    },
     {
         id: "surname", label: "Фамилия", help: "", type: "text", validate: [
             str => validString(str) ? "Фамилия сотрудника должна быть задана" : null
-        ], value: "Фамилия"
+        ], value: ""
     },
     {
         id: "department", label: "Департамент", help: "", type: "text", validate: [
             str => validString(str) ? "Департамент сотрудника должна быть задан" : null
-        ], value: "Департамент"
+        ], value: ""
     },
     {
         id: "birth", label: "Дата рождения", placeholder: "Формат ГГГГ-ММ-ДД", type: "text", validate: [
             str => validString(str) ? "Дата рождения сотрудника должна быть задана" : null,
             str => (str.match(/^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}$/g) === null) ? "Формат даты ГГГГ.ММ.ДД" : null
-        ], value: "2021-01-01"
+        ], value: ""
     },
     {
-        id: "manager", label: "Фамилия", help: "", type: "select", validate: [],
+        id: "manager", label: "Фамилия менеджера", help: "", type: "select", validate: [],
         value: -1,
         values: [[-1, "no manager"]].concat(DATA.employees.map(el => [el.id, el.name + " " + el.surname]))
     }];
@@ -33,7 +36,7 @@ function clearEmployeesPlaceholder() {
 }
 
 
-function showEmployees(employees) {
+function showEmployees(employees,filter) {
     let table = createTable(employees, [
         {
             title: "Name",
@@ -41,7 +44,7 @@ function showEmployees(employees) {
         }, {
             title: "Department",
             value: row => {
-                let param = FORM_FIELDS.find(t => t.id === "department");
+                let param =  Object.create(FORM_FIELDS.find(t => t.id === "department"));
                 param.value = row.department;
                 let control = createInput(param);
                 control.addEventListener("change", e => setDepartment(row.id, control.value), false);
@@ -51,7 +54,7 @@ function showEmployees(employees) {
             title: "DateOfBirth",
             value: row => {
                 let dt = row.dateOfBirth;
-                let param = FORM_FIELDS.find(t => t.id === "birth");
+                let param = Object.create(FORM_FIELDS.find(t => t.id === "birth"));
                 param.value = (!validRef(dt)) ? dateToString(dt) : "";
                 let control = createInput(param);
                 control.addEventListener("change", e => setDateOfBirth(row.id, new Date(control.value)), false);
@@ -61,7 +64,7 @@ function showEmployees(employees) {
         }, {
             title: "Manager",
             value: row => {
-                let param = FORM_FIELDS.find(t => t.id === "manager");
+                let param = Object.create(FORM_FIELDS.find(t => t.id === "manager"));
                 param.value = row.managerId;
                 let control = createInput(param);
                 control.addEventListener("change", e => setManager(row.id, param.values[control.selectedIndex][0]), false);
@@ -73,31 +76,72 @@ function showEmployees(employees) {
         removeEmployee(row.id);
         render();
     });
-    let place = cTag("div", "", "row", {},
-        cTag("div", "", "col-10 offset-md-1", {}, table)
-    );
-    $set(GLOBAL_UI.PLACEHOLDER, place);
+
+    let findField = ["name", "surname", "manager", "department"]
+        .map(f => FORM_FIELDS.find(t => t.id === f))
+        .map(f => {
+            let el = createInput(f);
+            let attr = document.createAttribute("placeholder");
+            let filterVal = (filter??[])[el.name];
+            attr.value = el.name;
+            if(!validRef(filterVal))
+                el.value = filterVal;
+            el.attributes.setNamedItem(attr);
+            el.addEventListener("keyup", e => {
+                if (e.keyCode === 13) findAction(e);
+            });
+            return el;
+        });
+
+
+    let findAction = e => {
+        let dict = findField.fold({})((acc, el) => {
+            let val = (el.value + "");
+            if (val.length > 0) {
+                acc[el.name]= val;
+            }
+            return acc;
+        });
+
+        showEmployees(search(dict),dict);
+    };
+
+
+    let searchBar = cTag("div", "", "row flex", {},
+        findField.map(el => cTag("div", "", "col-2", {}, el)).concat(
+            [
+                cTag("div", "", "col-1", {},
+                cTag("button", "", "btn btn-primary", {"type": "Button"}, "Search", {
+                    click: findAction
+                })),
+                cTag("div", "", "col-1", {},
+                    cTag("button", "", "btn btn-primary", {"type": "Button"}, "Clear", {
+                        click: e => showEmployees(search({}))
+                    }))
+                ]
+        ));
+    let place = cTag("div", "", "row", {}, [
+        searchBar,
+        cTag("div", "", "row", {}, cTag("div", "", "col-12", {}, table))
+    ]);
+
+    $set(GLOBAL_UI.PLACEHOLDER, place, false);
 }
 
 
 function addEmployeeFormUI() {
     let form = createForm(FORM_FIELDS, {
             title: "Добавить сотрудника", click: function (obj) {
-                console.log(obj);
-                let newID = addEmployee(obj.name, obj.surname);
-                let mangId = obj.manager * 1;
-                setDateOfBirth(newID, new Date(obj.birth));
-                setDepartment(newID, obj.department);
-                if (mangId > 0)
-                    setManager(newID, mangId);
+                fullSaveEmpl(obj);
                 render();
             }
         }
     )
-    let place = cTag("div", "", "row", {},
+    let place = cTag("div", "", "row container", {},
         cTag("div", "", "col-5 offset-md-3", {}, form)
     );
-    $set(GLOBAL_UI.PLACEHOLDER, place, false);
+
+    $set(GLOBAL_UI.PLACEHOLDERADD, place, false);
 }
 
 function render() {
@@ -106,8 +150,9 @@ function render() {
     showEmployees(DATA.employees);
 }
 
+
 function runUI() {
-    document.body.appendChild(cTag("div", GLOBAL_UI.PLACEHOLDER, ""));
+    document.body.appendChild(createTab([GLOBAL_UI.PLACEHOLDER, GLOBAL_UI.PLACEHOLDERADD]));
     render();
 }
 

@@ -105,3 +105,32 @@ function getEmployeeJSON(id) {
     validRefErr(empl, `Employee by id ${id} not found`);
     return JSON.stringify(empl);
 }
+
+function fullSaveEmpl(obj)
+{
+    let newID = addEmployee(obj.name, obj.surname);
+    let mangId = obj.manager * 1;
+    setDateOfBirth(newID, new Date(obj.birth));
+    setDepartment(newID, obj.department);
+    if (mangId > 0)
+        setManager(newID, mangId);
+}
+
+function search(dict){
+    let helperString = (name,el) => {
+        if(name in dict)
+        {
+            return  (el[name].toLowerCase().indexOf(dict[name].toLowerCase())) >-1;
+        }
+        return true;
+    }
+    let ret = DATA.employees.filter(el => {
+        return  helperString("name",el) &&
+                helperString("surname",el) &&
+                helperString("department",el) &&
+                ((dict["manager"] ?? '-1')*1 === -1)?true:(el.managerId*1 === dict["manager"] * 1)
+
+    });
+    console.log(ret);
+    return ret;
+}
