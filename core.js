@@ -233,12 +233,12 @@ function createTab(containers) {
 
     return cTag("div", "", "container", {}, [
         cTag("div", "", "row tab-header", {},
-            containers.map(tab => cTag("div", "tab" + tab, "col-1 tab-button " + (tab === containers[0] ? "active" : ""), {},
-                cTag("a", "", "", {"href": "javascript:"}, "Table", {click: e => setActiveTab(tab)}))
+            containers.map(tab => cTag("div", "tab" +  tab[1], "col-1 tab-button " + ( tab[1] === containers[0][1] ? "active" : ""), {},
+                cTag("a", "", "", {"href": "javascript:"},  tab[0], {click: e => setActiveTab( tab[1])}))
             )
         ),
         cTag("div", "", "row", {},
-            containers.map(tab => cTag("div", tab, "container tab-container " + (tab === containers[0] ? "" : "hidden"), {}, ""))
+            containers.map(tab => cTag("div", tab[1], "container tab-container " + ( tab[1] === containers[0][1] ? "" : "hidden"), {}, ""))
         )
     ]);
 }

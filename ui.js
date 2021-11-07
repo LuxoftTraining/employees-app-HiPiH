@@ -152,7 +152,7 @@ function render() {
 
 
 function runUI() {
-    document.body.appendChild(createTab([GLOBAL_UI.PLACEHOLDER, GLOBAL_UI.PLACEHOLDERADD]));
+    document.body.appendChild(createTab([["Table",GLOBAL_UI.PLACEHOLDER], ["Add",GLOBAL_UI.PLACEHOLDERADD]]));
     render();
 }
 
