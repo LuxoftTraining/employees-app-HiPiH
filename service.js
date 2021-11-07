@@ -45,13 +45,27 @@ function addPhone(id, phone) {
     ("phones" in empl) ? empl.phones.push(phone) : empl.phones = [phone];
 }
 
+function setManager(idEmployee, idManager) {
+    validNumberErr(idEmployee, "idEmployee:Number should be not empty", t => t < 0);
+    validNumberErr(idManager, "idManager:Number should be not empty", t => t < 0);
+    const empl = findById(idEmployee);
+    const mang = findById(idManager);
+    validRefErr(empl, `Employee by id ${idEmployee} not found`);
+    validRefErr(mang, `Employee-Manager by id ${idManager} not found`);
+    empl.managerId = idManager;
+}
+
 function setDateOfBirth(id, dt) {
     validDateErr(dt, "dt:Date should be not empty");
     const empl = findById(id);
     validRefErr(empl, `Employee by id ${id} not found`);
     empl.dateOfBirth = dt;
 }
-
+function setDepartment(id, value) {
+    const empl = findById(id);
+    validRefErr(empl, `Employee by id ${id} not found`);
+    empl.department = value;
+}
 function diffDate(dt1, dt2) {
     const y = dt1.getFullYear() - dt2.getFullYear();
     const m = dt1.getMonth() - dt2.getMonth();

@@ -117,17 +117,32 @@ function cTag(tagName, id, className = "", anyAttr = {}, childNode = [], events 
     }
     return ret;
 }
+function createInput(field) {
+    if(field.type === "select")
+    {
+        return cTag("select", "field_" + field.id, "form-control col-auto",
+            {"placeholder": field.placeholder, "name": field.id},
+            (field.values??[]).map(v => {
+                let attr = {"value":v[0]};
+                if(v[0] === field.value)
+                    attr["selected"] = true;
+                return cTag("option","","",attr,v[1])
+            }))
+    }
+    return cTag("input", "field_" + field.id, "form-control col-auto",
+        {"placeholder": field.placeholder, "type": "text", "name": field.id, value:field.value??""}, )
+}
 
+function creatField(field) {
+    return cTag("div", "", "row mb-3", {"data-field": field.id}, [
+        cTag("label", "", "form-label col-auto", {"for": "field_" + field.id}, field.label),
+        createInput(field),
+        cTag("label", "error_field_" + field.id, "col-auto text-danger", {}, "")
+    ]);
+};
 
 function createForm(field, submit) {
-    let creatField = (field) => {
-        return cTag("div", "", "row mb-3", {"data-field": field.id}, [
-            cTag("label", "", "form-label col-auto", {"for": "field_" + field.id}, field.label),
-            cTag("input", "field_" + field.id, "form-control col-auto",
-                {"placeholder": field.placeholder, "type": "text", "name": field.id}, []),
-            cTag("label", "error_field_" + field.id, "col-auto text-danger", {}, "")
-        ]);
-    };
+
     let fields = field.map(creatField);
     let buttonSubmit = cTag("button", "", "btn btn-primary col-4 offset-md-8",
         {"type": "button"},
@@ -175,4 +190,14 @@ function createTable(arr, columns, deleteAction) {
             return cTag("tr", "", "", {}, dataCol.concat(deleteCol));
         }));
     return cTag("table", "", "table", [], [header, body]);
+}
+
+
+function dateToString(dt)
+{
+    let to2letter = (d) => {
+        let dd = (d+"");
+        return dd.length === 1? "0"+dd:dd;
+    }
+    return dt.getFullYear()+"-"+to2letter(dt.getMonth()+1)+"-"+to2letter(dt.getDate());
 }
