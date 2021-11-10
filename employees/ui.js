@@ -10,7 +10,7 @@ import {
     validRef,
     validString
 } from "./core";
-import {fullSaveEmpl, getEmployee, removeEmployee, search, setDateOfBirth, setDepartment, setManager} from "./service";
+import Service from "./service";
 
 export const GLOBAL_UI = {
     PLACEHOLDER: "placeholder-table",
@@ -42,7 +42,7 @@ const FORM_FIELDS = [
     {
         id: "manager", label: "Фамилия менеджера", help: "", type: "select", validate: [],
         value: -1,
-        values: [[-1, "no manager"]].concat(getEmployee().map(el => [el.id, el.name + " " + el.surname]))
+        values: [[-1, "no manager"]].concat(Service.getEmployee().map(el => [el.id, el.name + " " + el.surname]))
     }];
 
 function clearEmployeesPlaceholder() {
@@ -61,7 +61,7 @@ function showEmployees(employees,filter) {
                 const param =  Object.create(FORM_FIELDS.find(t => t.id === "department"));
                 param.value = row.department;
                 const control = createInput(param);
-                control.addEventListener("change", () => setDepartment(row.id, control.value), false);
+                control.addEventListener("change", () => Service.setDepartment(row.id, control.value), false);
                 return control;
             }
         }, {
@@ -69,9 +69,9 @@ function showEmployees(employees,filter) {
             value: row => {
                 const dt = row.dateOfBirth;
                 const param = Object.create(FORM_FIELDS.find(t => t.id === "birth"));
-                param.value = (!validRef(dt)) ? dateToString(dt) : "";
+                param.value = (!validString(dt)) ? dateToString(dt) : "";
                 const control = createInput(param);
-                control.addEventListener("change", () => setDateOfBirth(row.id, new Date(control.value)), false);
+                control.addEventListener("change", () => Service.setDateOfBirth(row.id, new Date(control.value)), false);
                 return control;
 
             }
@@ -79,9 +79,9 @@ function showEmployees(employees,filter) {
             title: "Manager",
             value: row => {
                 const param = Object.create(FORM_FIELDS.find(t => t.id === "manager"));
-                param.value = row.managerId;
+                param.value = row.manager;
                 const control = createInput(param);
-                control.addEventListener("change", () => setManager(row.id, param.values[control.selectedIndex][0]), false);
+                control.addEventListener("change", () => Service.setManager(row.id, param.values[control.selectedIndex][0]), false);
                 return control;
             }
         }
@@ -93,7 +93,7 @@ function showEmployees(employees,filter) {
 
         }
         if(del) {
-            removeEmployee(row.id);
+            Service.removeEmployee(row.id);
             render();
         }
     });
@@ -124,7 +124,7 @@ function showEmployees(employees,filter) {
             return acc;
         });
 
-        showEmployees(search(dict),dict);
+        showEmployees(Service.search(dict),dict);
     };
 
 
@@ -137,7 +137,7 @@ function showEmployees(employees,filter) {
                 })),
                 cTag("div", "", "col-1", {},
                     cTag("button", "", "btn btn-primary", {"type": "Button"}, "Clear", {
-                        click: () => showEmployees(search({}))
+                        click: () => showEmployees(Service.search({}))
                     }))
                 ]
         ));
@@ -151,13 +151,16 @@ function showEmployees(employees,filter) {
 
 
 function addEmployeeFormUI() {
+
     let form = createForm(FORM_FIELDS, {
             title: "Добавить сотрудника", click: function (obj) {
-                fullSaveEmpl(obj);
+                console.log(obj);
+                Service.fullSaveEmpl(obj);
                 render();
             }
         }
     )
+
     let place = cTag("div", "", "row container", {},
         cTag("div", "", "col-5 offset-md-3", {}, form)
     );
@@ -168,7 +171,7 @@ function addEmployeeFormUI() {
 function render() {
     clearEmployeesPlaceholder();
     addEmployeeFormUI();
-    showEmployees(getEmployee());
+    showEmployees(Service.getEmployee());
 }
 
 export function runUI() {

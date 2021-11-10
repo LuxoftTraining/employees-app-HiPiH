@@ -1,9 +1,9 @@
-import {dateToString, validRefErr, validStringErr} from "../core";
-import {diffDate, findById} from "../service";
+import { diffDate,  validStringErr} from "../core";
+
 
 export class Person {
     _dateOfBirth;
-    phones;
+    phones = [];
     age;
 
     constructor( name, surname) {
@@ -24,11 +24,13 @@ export class Person {
     set dateOfBirth(date) {
         this._dateOfBirth = new Date(date);
     }
-
     get dateOfBirth() {
-        return this._dateOfBirth ?
-            " <b>Дата рождения:</b> " + dateToString(this._dateOfBirth) :
-            "";
+        return this._dateOfBirth;
+    }
+
+    setPhone(phone){
+        validStringErr(phone, "Phone:String should be not empty");
+        this.phones.push(phone);
     }
 
     toString() {

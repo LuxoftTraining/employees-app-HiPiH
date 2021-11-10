@@ -123,6 +123,12 @@ export function cTag(tagName, id, className = "", anyAttr = {}, childNode = [], 
     }
     return ret;
 }
+export function diffDate(dt1, dt2) {
+    const y = dt1.getFullYear() - dt2.getFullYear();
+    const m = dt1.getMonth() - dt2.getMonth();
+    const d = dt1.getDate() - dt2.getDate();
+    return y - ((m > 0 || (m === 0 && d > 0)) ? -1 : 0);
+}
 
 export function createInput(field) {
     if (field.type === "select") {
@@ -174,7 +180,7 @@ export function createForm(field, submit) {
                     return acc;
                 });
                 if (!body.error)
-                    submit.click();
+                    submit.click(body.fields);
             }
         })
     const controls = fields.concat(buttonSubmit);
@@ -211,6 +217,8 @@ export function dateToString(dt) {
         let dd = (d + "");
         return dd.length === 1 ? "0" + dd : dd;
     }
+
+    console.log(dt);
     return dt.getFullYear() + "-" + to2letter(dt.getMonth() + 1) + "-" + to2letter(dt.getDate());
 }
 
