@@ -1,5 +1,4 @@
-const DATA = {
-    employees: [
+export default   [
         {
             id: 1,
             name: "Пафнутий",
@@ -24,5 +23,5 @@ const DATA = {
             surname: "Петров",
             department: "Sale"
         }
-    ]
-}
+    ];
+
