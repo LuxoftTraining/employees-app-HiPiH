@@ -12,12 +12,12 @@ import {
 } from "./core";
 import {fullSaveEmpl, getEmployee, removeEmployee, search, setDateOfBirth, setDepartment, setManager} from "./service";
 
-let GLOBAL_UI = {
+export const GLOBAL_UI = {
     PLACEHOLDER: "placeholder-table",
     PLACEHOLDERADD: "placeholder-add"
 
 }
-let FORM_FIELDS = [
+const FORM_FIELDS = [
     {
         id: "name", label: "Имя", help: "", type: "text", validate: [
             str => validString(str) ? "Имя сотрудника должно быть задано" : null
@@ -87,8 +87,15 @@ function showEmployees(employees,filter) {
         }
 
     ], row => {
-        removeEmployee(row.id);
-        render();
+        let del = true;
+        if (process.env.NODE_ENV === 'production'){
+            del = confirm("Delete?");
+
+        }
+        if(del) {
+            removeEmployee(row.id);
+            render();
+        }
     });
 
     let findField = ["name", "surname", "manager", "department"]
@@ -164,9 +171,7 @@ function render() {
     showEmployees(getEmployee());
 }
 
-
 export function runUI() {
     document.body.appendChild(createTab([["Table",GLOBAL_UI.PLACEHOLDER], ["Add",GLOBAL_UI.PLACEHOLDERADD]]));
     render();
 }
-

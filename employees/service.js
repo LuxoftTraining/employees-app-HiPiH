@@ -1,4 +1,4 @@
-import { DATA } from './employees-json'
+import DATA from './employees-json'
 import {validDateErr, validNumberErr, validRefErr, validStringErr} from "./core";
 
 export  function findByName(name, surname) {

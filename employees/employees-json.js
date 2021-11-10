@@ -1,4 +1,4 @@
-export const DATA = {
+export default {
     employees: [
         {
             id: 1,
