@@ -1,9 +1,11 @@
+import { DATA } from './employees-json'
+import {validDateErr, validNumberErr, validRefErr, validStringErr} from "./core";
 
-function findByName(name, surname) {
+export  function findByName(name, surname) {
     return DATA.employees.filter(value => (!name || value.name === name) && (!surname || value.surname === surname))
 }
 
-function addEmployee(name, surname) {
+export  function addEmployee(name, surname) {
     validStringErr(name, "Name:String should be not empty");
     validStringErr(surname, "Surname:String should be not empty");
     const nextID = DATA.employees.length === 0?0:DATA.employees.sort((a, b) => b.id - a.id)[0].id + 1;
@@ -11,19 +13,19 @@ function addEmployee(name, surname) {
     return nextID;
 }
 
-function findById(id) {
+export  function findById(id) {
     validNumberErr(id, "Id:Number should be not empty", t => t < 0);
     return DATA.employees.find(s => s.id === id);
 }
 
-function removeEmployee(id) {
+export  function removeEmployee(id) {
     validNumberErr(id, "Id:Number should be not empty", t => t < 0);
     const index = DATA.employees.findIndex(s => s.id === id);
     if (index >= 0)
         DATA.employees.splice(index, 1);
 }
 
-function showEmployee(empl) {
+export  function showEmployee(empl) {
     validRefErr(empl, "Empl:Employee should be not empty");
     if (!("name" in empl))
         throw  new Error("Employee has not contain property 'name'");
@@ -31,21 +33,21 @@ function showEmployee(empl) {
     Object.keys(empl).forEach(key => console.log(`${key} : ${empl[key]}`));
 }
 
-function showEmployees() {
+export function showEmployees() {
     DATA.employees.forEach(e => {
         console.log("*".repeat(10));
         showEmployee(e);
     });
 }
 
-function addPhone(id, phone) {
+export function addPhone(id, phone) {
     validStringErr(phone, "Phone:String should be not empty");
     const empl = findById(id);
     validRefErr(empl, `Employee by id ${id} not found`);
     ("phones" in empl) ? empl.phones.push(phone) : empl.phones = [phone];
 }
 
-function setManager(idEmployee, idManager) {
+export function setManager(idEmployee, idManager) {
     validNumberErr(idEmployee, "idEmployee:Number should be not empty", t => t < 0);
     validNumberErr(idManager, "idManager:Number should be not empty", t => t < 0);
     const empl = findById(idEmployee);
@@ -55,38 +57,38 @@ function setManager(idEmployee, idManager) {
     empl.managerId = idManager;
 }
 
-function setDateOfBirth(id, dt) {
+export function setDateOfBirth(id, dt) {
     validDateErr(dt, "dt:Date should be not empty");
     const empl = findById(id);
     validRefErr(empl, `Employee by id ${id} not found`);
     empl.dateOfBirth = dt;
 }
-function setDepartment(id, value) {
+export function setDepartment(id, value) {
     const empl = findById(id);
     validRefErr(empl, `Employee by id ${id} not found`);
     empl.department = value;
 }
-function diffDate(dt1, dt2) {
+export function diffDate(dt1, dt2) {
     const y = dt1.getFullYear() - dt2.getFullYear();
     const m = dt1.getMonth() - dt2.getMonth();
     const d = dt1.getDate() - dt2.getDate();
     return y - ((m > 0 || (m === 0 && d > 0)) ? -1 : 0);
 }
 
-function getAge(id) {
+export function getAge(id) {
     const empl = findById(id);
     validRefErr(empl, `Employee by id ${id} not found`);
     return ("dateOfBirth" in empl) ? diffDate(new Date(), empl.dateOfBirth) : -1;
 }
 
-function formatDate(date) {
+export function formatDate(date) {
     const day = date.getDate();
     const month = date.getMonth() + 1;
     const year = date.getFullYear();
     return ((day < 10) ? '0' + day : day) + '.' + ((month < 10) ? '0' + month : month) + '.' + year;
 }
 
-function getEmployeeInfo(id) {
+export function getEmployeeInfo(id) {
     const empl = findById(id);
     validRefErr(empl, `Employee by id ${id} not found`);
     const phones = empl.phones ? `Список телефонов: ${empl.phones}` : '';
@@ -100,31 +102,35 @@ function getEmployeeInfo(id) {
          `;
 }
 
-function getEmployeeJSON(id) {
+export function getEmployeeJSON(id) {
     const empl = findById(id);
     validRefErr(empl, `Employee by id ${id} not found`);
     return JSON.stringify(empl);
 }
 
-function fullSaveEmpl(obj)
+export function getEmployee() {
+    return [...DATA.employees];
+}
+
+export function fullSaveEmpl(obj)
 {
-    let newID = addEmployee(obj.name, obj.surname);
-    let mangId = obj.manager * 1;
+    const newID = addEmployee(obj.name, obj.surname);
+    const mangId = obj.manager * 1;
     setDateOfBirth(newID, new Date(obj.birth));
     setDepartment(newID, obj.department);
     if (mangId > 0)
         setManager(newID, mangId);
 }
 
-function search(dict){
-    let helperString = (name,el) => {
+export function search(dict){
+    const helperString = (name,el) => {
         if(name in dict)
         {
             return  (el[name].toLowerCase().indexOf(dict[name].toLowerCase())) >-1;
         }
         return true;
     }
-    let ret = DATA.employees.filter(el => {
+    const ret = DATA.employees.filter(el => {
         return  helperString("name",el) &&
                 helperString("surname",el) &&
                 helperString("department",el) &&

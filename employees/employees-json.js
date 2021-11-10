@@ -1,4 +1,4 @@
-const DATA = {
+export const DATA = {
     employees: [
         {
             id: 1,

@@ -1,4 +1,4 @@
-function validRef(t, anyCondition = () => {
+export function validRef(t, anyCondition = () => {
     return false;
 }) {
     const isNull = t == null;
@@ -6,13 +6,13 @@ function validRef(t, anyCondition = () => {
     return (isNull || isUndefined || anyCondition(t));
 }
 
-function validRefErr(t, textThrowable, anyCondition = () => {
+export function validRefErr(t, textThrowable, anyCondition = () => {
     return false;
 }) {
     if (validRef(t, anyCondition)) throw new Error(textThrowable);
 }
 
-function validString(t, anyCondition = () => {
+export function validString(t, anyCondition = () => {
     return false;
 }) {
     const isNotNeedType = typeof (t) !== typeof ("");
@@ -21,13 +21,13 @@ function validString(t, anyCondition = () => {
     });
 }
 
-function validStringErr(t, textThrowable, anyCondition = () => {
+export function validStringErr(t, textThrowable, anyCondition = () => {
     return false;
 }) {
     if (validString(t, anyCondition)) throw new Error(textThrowable);
 }
 
-function validNumberErr(t, textThrowable, anyCondition = () => {
+export function validNumberErr(t, textThrowable, anyCondition = () => {
     return false;
 }) {
     const isNotNeedType = typeof (t) !== typeof (0);
@@ -37,7 +37,7 @@ function validNumberErr(t, textThrowable, anyCondition = () => {
     });
 }
 
-function validDateErr(t, textThrowable, anyCondition = () => {
+export function validDateErr(t, textThrowable, anyCondition = () => {
     return false;
 }) {
     const isNotNeedType = typeof (t) !== typeof (new Date());
@@ -59,7 +59,7 @@ HTMLElement.prototype.getElementById = function (id) {
 Array.prototype.fold = function (zero) {
     function loop(arr, _f, _zero) {
         if (arr.length === 0 || validRef(arr)) return _zero;
-        let el = arr.pop();
+        const el = arr.pop();
         return loop(arr, _f, _f(zero, el));
     }
 
@@ -76,26 +76,26 @@ Array.prototype.contains = el => {
 };
 
 
-$ = id => document.getElementById(id);
-$set = (id, value, append = true) => {
-    let obj = $(id);
+export  function $(id) { return document.getElementById(id);}
+export function $set(id, value, append = true) {
+    const obj = $(id);
     if (!append)
         $clear(id);
     obj.appendChild(value);
     return obj;
 }
 
-$clear = id => {
+export function $clear(id) {
     let obj = $(id);
     obj.innerHTML = '';
     return obj;
 }
 
 
-function cTag(tagName, id, className = "", anyAttr = {}, childNode = [], events = {}) {
+export function cTag(tagName, id, className = "", anyAttr = {}, childNode = [], events = {}) {
 
-    let ret = document.createElement(tagName);
-    let dictAttr = (anyAttr ?? {});
+    const ret = document.createElement(tagName);
+    const dictAttr = (anyAttr ?? {});
     dictAttr["id"] = id;
     dictAttr["class"] = className;
     dictAttr.mapObj((k, v) => {
@@ -124,7 +124,7 @@ function cTag(tagName, id, className = "", anyAttr = {}, childNode = [], events 
     return ret;
 }
 
-function createInput(field) {
+export function createInput(field) {
     if (field.type === "select") {
         return cTag("select", "field_" + field.id, "form-control col-auto",
             {"placeholder": field.placeholder, "name": field.id,},
@@ -139,26 +139,26 @@ function createInput(field) {
         {"placeholder": field.placeholder, "type": "text", "name": field.id, value: field.value ?? ""},)
 }
 
-function creatField(field) {
+export function creatField(field) {
     return cTag("div", "", "row mb-3", {"data-field": field.id}, [
         cTag("label", "", "form-label col-auto", {"for": "field_" + field.id}, field.label),
         createInput(field),
         cTag("label", "error_field_" + field.id, "col-auto text-danger", {}, "")
     ]);
-};
+}
 
-function createForm(field, submit) {
-    let fields = field.map(creatField);
-    let buttonSubmit = cTag("button", "", "btn btn-primary col-6 offset-md-6",
+export function createForm(field, submit) {
+    const fields = field.map(creatField);
+    const buttonSubmit = cTag("button", "", "btn btn-primary col-6 offset-md-6",
         {"type": "button"},
         submit.title, {
-            "click": e => {
+            "click": () => {
                 let body = fields.fold({error: false, fields: {}})((acc, el) => {
-                    let id = el.getAttribute("data-field");
-                    let inputField = el.getElementById("field_" + id);
-                    let value = inputField.value;
-                    let f = field.filter(t => t.id === id)[0];
-                    let errorPlace = el.getElementById("error_field_" + id);
+                    const id = el.getAttribute("data-field");
+                    const inputField = el.getElementById("field_" + id);
+                    const value = inputField.value;
+                    const f = field.filter(t => t.id === id)[0];
+                    const errorPlace = el.getElementById("error_field_" + id);
                     errorPlace.innerHTML = '';
                     acc.fields[id] = value;
                     inputField.classList.remove("error");
@@ -174,15 +174,15 @@ function createForm(field, submit) {
                     return acc;
                 });
                 if (!body.error)
-                    submit.click(body.fields);
+                    submit.click();
             }
         })
-    let controls = fields.concat(buttonSubmit);
+    const controls = fields.concat(buttonSubmit);
     return cTag("form", "", "", {}, controls);
 
 }
 
-function createTable(arr, columns, deleteAction) {
+export function createTable(arr, columns, deleteAction) {
     let header = cTag("thead", "", "", {},
         cTag("tr", "", "", {},
             columns.map(el => cTag("th", "", "", {"scope": "col"}, el.title))
@@ -194,7 +194,7 @@ function createTable(arr, columns, deleteAction) {
             let deleteCol = cTag("th", "", "", {},
                 cTag("button", "", "btn btn-danger",
                     {"type": "button"}, "Delete", {
-                        click: e => {
+                        click: () => {
                             deleteAction(row);
                             return false;
                         }
@@ -206,7 +206,7 @@ function createTable(arr, columns, deleteAction) {
 }
 
 
-function dateToString(dt) {
+export function dateToString(dt) {
     let to2letter = (d) => {
         let dd = (d + "");
         return dd.length === 1 ? "0" + dd : dd;
@@ -215,7 +215,7 @@ function dateToString(dt) {
 }
 
 
-function createTab(containers) {
+export function createTab(containers) {
     function setActiveTab(tab) {
         for (let i of document.getElementsByClassName("tab-button")) {
             i.classList.remove("active");
@@ -234,7 +234,7 @@ function createTab(containers) {
     return cTag("div", "", "container", {}, [
         cTag("div", "", "row tab-header", {},
             containers.map(tab => cTag("div", "tab" +  tab[1], "col-1 tab-button " + ( tab[1] === containers[0][1] ? "active" : ""), {},
-                cTag("a", "", "", {"href": "javascript:"},  tab[0], {click: e => setActiveTab( tab[1])}))
+                cTag("a", "", "", {"href": "javascript:"},  tab[0], {click: () => setActiveTab( tab[1])}))
             )
         ),
         cTag("div", "", "row", {},

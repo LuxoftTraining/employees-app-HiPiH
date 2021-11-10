@@ -1,3 +1,17 @@
+import {
+    $clear,
+    $set,
+    createForm,
+    createInput,
+    createTab,
+    createTable,
+    cTag,
+    dateToString,
+    validRef,
+    validString
+} from "./core";
+import {fullSaveEmpl, getEmployee, removeEmployee, search, setDateOfBirth, setDepartment, setManager} from "./service";
+
 let GLOBAL_UI = {
     PLACEHOLDER: "placeholder-table",
     PLACEHOLDERADD: "placeholder-add"
@@ -28,7 +42,7 @@ let FORM_FIELDS = [
     {
         id: "manager", label: "Фамилия менеджера", help: "", type: "select", validate: [],
         value: -1,
-        values: [[-1, "no manager"]].concat(DATA.employees.map(el => [el.id, el.name + " " + el.surname]))
+        values: [[-1, "no manager"]].concat(getEmployee().map(el => [el.id, el.name + " " + el.surname]))
     }];
 
 function clearEmployeesPlaceholder() {
@@ -44,30 +58,30 @@ function showEmployees(employees,filter) {
         }, {
             title: "Department",
             value: row => {
-                let param =  Object.create(FORM_FIELDS.find(t => t.id === "department"));
+                const param =  Object.create(FORM_FIELDS.find(t => t.id === "department"));
                 param.value = row.department;
-                let control = createInput(param);
-                control.addEventListener("change", e => setDepartment(row.id, control.value), false);
+                const control = createInput(param);
+                control.addEventListener("change", () => setDepartment(row.id, control.value), false);
                 return control;
             }
         }, {
             title: "DateOfBirth",
             value: row => {
-                let dt = row.dateOfBirth;
-                let param = Object.create(FORM_FIELDS.find(t => t.id === "birth"));
+                const dt = row.dateOfBirth;
+                const param = Object.create(FORM_FIELDS.find(t => t.id === "birth"));
                 param.value = (!validRef(dt)) ? dateToString(dt) : "";
-                let control = createInput(param);
-                control.addEventListener("change", e => setDateOfBirth(row.id, new Date(control.value)), false);
+                const control = createInput(param);
+                control.addEventListener("change", () => setDateOfBirth(row.id, new Date(control.value)), false);
                 return control;
 
             }
         }, {
             title: "Manager",
             value: row => {
-                let param = Object.create(FORM_FIELDS.find(t => t.id === "manager"));
+                const param = Object.create(FORM_FIELDS.find(t => t.id === "manager"));
                 param.value = row.managerId;
-                let control = createInput(param);
-                control.addEventListener("change", e => setManager(row.id, param.values[control.selectedIndex][0]), false);
+                const control = createInput(param);
+                control.addEventListener("change", () => setManager(row.id, param.values[control.selectedIndex][0]), false);
                 return control;
             }
         }
@@ -80,23 +94,23 @@ function showEmployees(employees,filter) {
     let findField = ["name", "surname", "manager", "department"]
         .map(f => FORM_FIELDS.find(t => t.id === f))
         .map(f => {
-            let el = createInput(f);
-            let attr = document.createAttribute("placeholder");
-            let filterVal = (filter??[])[el.name];
+            const el = createInput(f);
+            const attr = document.createAttribute("placeholder");
+            const filterVal = (filter??[])[el.name];
             attr.value = el.name;
             if(!validRef(filterVal))
                 el.value = filterVal;
             el.attributes.setNamedItem(attr);
             el.addEventListener("keyup", e => {
-                if (e.keyCode === 13) findAction(e);
+                if (e.keyCode === 13) findAction();
             });
             return el;
         });
 
 
-    let findAction = e => {
+    let findAction = () => {
         let dict = findField.fold({})((acc, el) => {
-            let val = (el.value + "");
+            const val = (el.value + "");
             if (val.length > 0) {
                 acc[el.name]= val;
             }
@@ -116,7 +130,7 @@ function showEmployees(employees,filter) {
                 })),
                 cTag("div", "", "col-1", {},
                     cTag("button", "", "btn btn-primary", {"type": "Button"}, "Clear", {
-                        click: e => showEmployees(search({}))
+                        click: () => showEmployees(search({}))
                     }))
                 ]
         ));
@@ -147,13 +161,12 @@ function addEmployeeFormUI() {
 function render() {
     clearEmployeesPlaceholder();
     addEmployeeFormUI();
-    showEmployees(DATA.employees);
+    showEmployees(getEmployee());
 }
 
 
-function runUI() {
+export function runUI() {
     document.body.appendChild(createTab([["Table",GLOBAL_UI.PLACEHOLDER], ["Add",GLOBAL_UI.PLACEHOLDERADD]]));
     render();
 }
 
-window.addEventListener("load", runUI, false);
