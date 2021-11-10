@@ -1,5 +1,6 @@
 import DATA from './employees-json'
 import {validDateErr, validNumberErr, validRefErr, validStringErr} from "./core";
+import {jsonToEmployees} from "./model/employee";
 
 export  function findByName(name, surname) {
     return DATA.employees.filter(value => (!name || value.name === name) && (!surname || value.surname === surname))
@@ -8,21 +9,21 @@ export  function findByName(name, surname) {
 export  function addEmployee(name, surname) {
     validStringErr(name, "Name:String should be not empty");
     validStringErr(surname, "Surname:String should be not empty");
-    const nextID = DATA.employees.length === 0?0:DATA.employees.sort((a, b) => b.id - a.id)[0].id + 1;
-    DATA.employees.push({id: nextID, name: name, surname: surname, department: ""});
+    const nextID = DATA.length === 0?0:DATA.employees.sort((a, b) => b.id - a.id)[0].id + 1;
+    DATA.push({id: nextID, name: name, surname: surname, department: ""});
     return nextID;
 }
 
 export  function findById(id) {
     validNumberErr(id, "Id:Number should be not empty", t => t < 0);
-    return DATA.employees.find(s => s.id === id);
+    return DATA.find(s => s.id === id);
 }
 
 export  function removeEmployee(id) {
     validNumberErr(id, "Id:Number should be not empty", t => t < 0);
     const index = DATA.employees.findIndex(s => s.id === id);
     if (index >= 0)
-        DATA.employees.splice(index, 1);
+        DATA.splice(index, 1);
 }
 
 export  function showEmployee(empl) {
@@ -34,7 +35,7 @@ export  function showEmployee(empl) {
 }
 
 export function showEmployees() {
-    DATA.employees.forEach(e => {
+    jsonToEmployees(DATA).forEach(e => {
         console.log("*".repeat(10));
         showEmployee(e);
     });
@@ -109,7 +110,7 @@ export function getEmployeeJSON(id) {
 }
 
 export function getEmployee() {
-    return [...DATA.employees];
+    return [...DATA];
 }
 
 export function fullSaveEmpl(obj)
@@ -130,7 +131,7 @@ export function search(dict){
         }
         return true;
     }
-    const ret = DATA.employees.filter(el => {
+    const ret = DATA.filter(el => {
         return  helperString("name",el) &&
                 helperString("surname",el) &&
                 helperString("department",el) &&

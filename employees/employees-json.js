@@ -1,5 +1,4 @@
-export default {
-    employees: [
+export default   [
         {
             id: 1,
             name: "Пафнутий",
@@ -24,5 +23,5 @@ export default {
             surname: "Петров",
             department: "Sale"
         }
-    ]
-}
+    ];
+
