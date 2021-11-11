@@ -46,9 +46,13 @@ export function validDateErr(t, textThrowable, anyCondition = () => {
     });
 }
 
+
+
+
 Object.prototype.mapObj = function (f) {
     return Object.keys(this).map(k => f(k, this[k]));
 };
+
 HTMLElement.prototype.getElementById = function (id) {
     for (let el of this.childNodes) {
         if (el.id === id)
@@ -56,6 +60,7 @@ HTMLElement.prototype.getElementById = function (id) {
     }
     return null;
 };
+
 Array.prototype.fold = function (zero) {
     function loop(arr, _f, _zero) {
         if (arr.length === 0 || validRef(arr)) return _zero;
@@ -67,6 +72,7 @@ Array.prototype.fold = function (zero) {
         return loop(this.slice(), f, zero);
     }
 }
+
 Array.prototype.contains = el => {
     for (let t in this) {
         if (el === t)
@@ -76,7 +82,7 @@ Array.prototype.contains = el => {
 };
 
 
-export  function $(id) { return document.getElementById(id);}
+export function $(id) { return document.getElementById(id);}
 export function $set(id, value, append = true) {
     const obj = $(id);
     if (!append)

@@ -50,7 +50,7 @@ function clearEmployeesPlaceholder() {
 }
 
 
-function showEmployees(employees,filter) {
+function showEmployees(employees, filter) {
     let table = createTable(employees, [
         {
             title: "Name",
@@ -58,7 +58,7 @@ function showEmployees(employees,filter) {
         }, {
             title: "Department",
             value: row => {
-                const param =  Object.create(FORM_FIELDS.find(t => t.id === "department"));
+                const param = Object.create(FORM_FIELDS.find(t => t.id === "department"));
                 param.value = row.department;
                 const control = createInput(param);
                 control.addEventListener("change", () => Service.setDepartment(row.id, control.value), false);
@@ -88,11 +88,11 @@ function showEmployees(employees,filter) {
 
     ], row => {
         let del = true;
-        if (process.env.NODE_ENV === 'production'){
+        if (process.env.NODE_ENV === 'production') {
             del = confirm("Delete?");
 
         }
-        if(del) {
+        if (del) {
             Service.removeEmployee(row.id);
             render();
         }
@@ -103,9 +103,9 @@ function showEmployees(employees,filter) {
         .map(f => {
             const el = createInput(f);
             const attr = document.createAttribute("placeholder");
-            const filterVal = (filter??[])[el.name];
+            const filterVal = (filter ?? [])[el.name];
             attr.value = el.name;
-            if(!validRef(filterVal))
+            if (!validRef(filterVal))
                 el.value = filterVal;
             el.attributes.setNamedItem(attr);
             el.addEventListener("keyup", e => {
@@ -119,12 +119,12 @@ function showEmployees(employees,filter) {
         let dict = findField.fold({})((acc, el) => {
             const val = (el.value + "");
             if (val.length > 0) {
-                acc[el.name]= val;
+                acc[el.name] = val;
             }
             return acc;
         });
 
-        showEmployees(Service.search(dict),dict);
+        showEmployees(Service.searchEmployee(dict), dict);
     };
 
 
@@ -132,14 +132,14 @@ function showEmployees(employees,filter) {
         findField.map(el => cTag("div", "", "col-2", {}, el)).concat(
             [
                 cTag("div", "", "col-1", {},
-                cTag("button", "", "btn btn-primary", {"type": "Button"}, "Search", {
-                    click: findAction
-                })),
+                    cTag("button", "", "btn btn-primary", {"type": "Button"}, "Search", {
+                        click: findAction
+                    })),
                 cTag("div", "", "col-1", {},
                     cTag("button", "", "btn btn-primary", {"type": "Button"}, "Clear", {
-                        click: () => showEmployees(Service.search({}))
+                        click: () => showEmployees(Service.searchEmployee({}))
                     }))
-                ]
+            ]
         ));
     let place = cTag("div", "", "row", {}, [
         searchBar,
@@ -171,10 +171,12 @@ function addEmployeeFormUI() {
 function render() {
     clearEmployeesPlaceholder();
     addEmployeeFormUI();
-    showEmployees(Service.getEmployee());
+    const empls = Service.getEmployee();
+    console.log(empls);
+    showEmployees(empls);
 }
 
 export function runUI() {
-    document.body.appendChild(createTab([["Table",GLOBAL_UI.PLACEHOLDER], ["Add",GLOBAL_UI.PLACEHOLDERADD]]));
+    document.body.appendChild(createTab([["Table", GLOBAL_UI.PLACEHOLDER], ["Add", GLOBAL_UI.PLACEHOLDERADD]]));
     render();
 }

@@ -1,44 +1,45 @@
-import { diffDate,  validStringErr} from "../core";
-
+import {diffDate} from "../core";
 
 export class Person {
-    _dateOfBirth;
+
+    name = null;
+    surname = null;
+    dateOfBirth = null;
     phones = [];
-    age;
 
-    constructor( name, surname) {
-
-        this.name = name;
-        this.surname = surname;
+    constructor(_name, _surname) {
+        this.name = _name;
+        this.surname = _surname;
     }
 
-    get fullName() {
+    cloneAndSetNewParams(newParamsObj) {
+        return Object.assign(new this.constructor(), this, newParamsObj);
+    }
+
+    setDateOfBirth(date) {
+        return this.cloneAndSetNewParams({dateOfBirth: new Date(date)});
+    }
+
+    getDateOfBirth() {
+        return this.dateOfBirth;
+    }
+
+    getFullName() {
         return this.name + " " + this.surname;
     }
 
-    get getAge() {
-        if (!this._dateOfBirth) return "";
-        return diffDate(new Date(), this._dateOfBirth);
+    getAge() {
+        if (!this.dateOfBirth) return "";
+        return diffDate(new Date(), this.dateOfBirth);
     }
 
-    set dateOfBirth(date) {
-        this._dateOfBirth = new Date(date);
-    }
-    get dateOfBirth() {
-        return this._dateOfBirth;
-    }
-
-    setPhone(phone){
-        validStringErr(phone, "Phone:String should be not empty");
-        this.phones.push(phone);
+    appendNewPhone(phone) {
+        return this.cloneAndSetNewParams({phones: [...this.phones, phone]});
     }
 
     toString() {
-        const phones = this.phones ?
-            `Список телефонов: ${this.phones}` : '';
-        return `
-          ${this.fullName} \
-          ${this.dateOfBirth} ${this.age} ${phones}`;
+        const phones = this.phones ? `Список телефонов: ${this.phones}` : '';
+        return `${this.getFullName()} ${this.dateOfBirth} ${this.getAge()} ${phones}`;
     }
 
     static fromJSON(obj) {
