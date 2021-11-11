@@ -6,7 +6,7 @@ import {
     createTab,
     createTable,
     cTag,
-    dateToString,
+    dateToString, fold,
     validRef,
     validString
 } from "./core";
@@ -116,7 +116,8 @@ function showEmployees(employees, filter) {
 
 
     let findAction = () => {
-        let dict = findField.fold({})((acc, el) => {
+
+        let dict = fold(findField,{})((acc, el) => {
             const val = (el.value + "");
             if (val.length > 0) {
                 acc[el.name] = val;

@@ -36,7 +36,6 @@ export class Employee extends Person {
 export function jsonToEmployees(employeesJSON) {
     let employees = [];
     for (let e of employeesJSON) {
-        console.log(e);
         employees.push(Employee.fromJSON(e));
     }
     return employees;

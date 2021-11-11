@@ -49,19 +49,7 @@ export function validDateErr(t, textThrowable, anyCondition = () => {
 
 
 
-Object.prototype.mapObj = function (f) {
-    return Object.keys(this).map(k => f(k, this[k]));
-};
-
-HTMLElement.prototype.getElementById = function (id) {
-    for (let el of this.childNodes) {
-        if (el.id === id)
-            return el;
-    }
-    return null;
-};
-
-Array.prototype.fold = function (zero) {
+export function fold(arr, zero) {
     function loop(arr, _f, _zero) {
         if (arr.length === 0 || validRef(arr)) return _zero;
         const el = arr.pop();
@@ -69,17 +57,9 @@ Array.prototype.fold = function (zero) {
     }
 
     return f => {
-        return loop(this.slice(), f, zero);
+        return loop([...arr], f, zero);
     }
 }
-
-Array.prototype.contains = el => {
-    for (let t in this) {
-        if (el === t)
-            return true;
-    }
-    return false;
-};
 
 
 export function $(id) { return document.getElementById(id);}
@@ -104,9 +84,12 @@ export function cTag(tagName, id, className = "", anyAttr = {}, childNode = [], 
     const dictAttr = (anyAttr ?? {});
     dictAttr["id"] = id;
     dictAttr["class"] = className;
-    dictAttr.mapObj((k, v) => {
+
+    Object.keys(dictAttr).map(k => {
+        const v = this[k];
         if (!validRef(v) && v !== "") ret.setAttribute(k, v);
     });
+
     if (!validRef(childNode)) {
         if (typeof (childNode) == "object") {
             if (Array.isArray(childNode)) {
@@ -167,10 +150,10 @@ export function createForm(field, submit) {
             "click": () => {
                 let body = fields.fold({error: false, fields: {}})((acc, el) => {
                     const id = el.getAttribute("data-field");
-                    const inputField = el.getElementById("field_" + id);
+                    const inputField = [...el.childNodes].find(el => el.id === "field_" + id);
                     const value = inputField.value;
                     const f = field.filter(t => t.id === id)[0];
-                    const errorPlace = el.getElementById("error_field_" + id);
+                    const errorPlace = [...el.childNodes].find(el => el.id === "error_field_" + id);
                     errorPlace.innerHTML = '';
                     acc.fields[id] = value;
                     inputField.classList.remove("error");

@@ -17,10 +17,16 @@ class Service {
         return this._employee.find(s => s.id === id);
     }
 
-    addEmployee(name, surname) {
+    getMaxIdEmployee()
+    {
+        return this._employee.length === 0 ? 0 : this._employee.map(empl => empl.id).sort().reverse()[0];
+    }
+
+    addEmployee(id, name, surname) {
         validStringErr(name, "Name:String should be not empty");
         validStringErr(surname, "Surname:String should be not empty");
-        const id = this._employee.length === 0 ? 0 : this._employee.sort((a, b) => b.id - a.id)[0].id + 1;
+        if(this.findById(id))
+            throw new Error(`Employee with id = ${id}  is exist.`);
         const empl = new Employee(id, name, surname);
         this._employee = [...this._employee,empl];
         return empl;
@@ -95,7 +101,8 @@ class Service {
     }
 
     fullSaveEmpl({name, surname, manager, birth, department}) {
-        let empl = this.addEmployee(name, surname)
+        let newId = this.getMaxIdEmployee() + 1;
+        let empl = this.addEmployee(newId,name, surname)
             .setDepartment(department)
             .setDateOfBirth(birth);
 
